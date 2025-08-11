@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import bgImg from "../../assets/31202.jpg";
@@ -175,7 +174,8 @@ const ResultsPage = () => {
       ) : (
         <div className="text-center">
           <p className="text-red-500 font-bold text-lg mb-4">
-            No flights found for your search criteria. Please try different dates or destinations.
+            No flights found for your search criteria. Please try different
+            dates or destinations.
           </p>
         </div>
       )}
