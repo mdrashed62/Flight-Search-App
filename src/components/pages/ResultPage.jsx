@@ -175,7 +175,7 @@ const ResultsPage = () => {
       ) : (
         <div className="text-center">
           <p className="text-red-500 font-bold text-lg mb-4">
-            No flights found for your search criteria.
+            No flights found for your search criteria. Please try different dates or destinations.
           </p>
         </div>
       )}

@@ -85,9 +85,33 @@ const Flights = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!formData.origin || !formData.destination) {
+      alert("Please select both origin and destination cities/airports.");
+      return;
+    }
+    
+    if (!formData.departureDate) {
+      alert("Please select a departure date.");
+      return;
+    }
+
+    const selectedDate = new Date(formData.departureDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    if (selectedDate < today) {
+      alert("Please select a future date for departure.");
+      return;
+    }
+    
     setLoading(true);
+    console.log("Form data being sent:", formData);
+    
     try {
       const token = await getAccessToken();
+      console.log("Token received:", token ? "Yes" : "No");
+      
       const query = new URLSearchParams({
         originLocationCode: formData.origin,
         destinationLocationCode: formData.destination,
@@ -96,20 +120,38 @@ const Flights = () => {
         currencyCode: "USD",
         max: 10,
       });
-      const response = await fetch(
-        `https://test.api.amadeus.com/v2/shopping/flight-offers?${query}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      const data = await response.json();
-      if (data.data) {
-        navigate("/results", { state: { flights: data.data } });
+      
+      const apiUrl = `https://test.api.amadeus.com/v2/shopping/flight-offers?${query}`;
+      console.log("API URL:", apiUrl);
+      
+      const response = await fetch(apiUrl, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      
+      console.log("Response status:", response.status);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("API Error:", errorText);
+        throw new Error(`API Error: ${response.status} - ${errorText}`);
       }
-    } catch {
-      // Error fetching flights
+      
+      const data = await response.json();
+      console.log("API Response:", data);
+      
+      if (data.data && data.data.length > 0) {
+        console.log("Found flights:", data.data.length);
+        navigate("/results", { state: { flights: data.data } });
+      } else {
+        console.log("No flights found in response");
+        alert("No flights found for your search criteria. Please try different dates or destinations.");
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error("Error fetching flights:", error);
+      alert(`Error searching flights: ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -233,6 +275,7 @@ const Flights = () => {
             value={formData.departureDate}
             onChange={handleChange}
             type="date"
+            min={new Date().toISOString().split('T')[0]}
             className="w-full outline-none"
             required
           />
