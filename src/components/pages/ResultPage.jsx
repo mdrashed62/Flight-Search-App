@@ -1,4 +1,4 @@
-// src/pages/ResultsPage.jsx
+
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import bgImg from "../../assets/31202.jpg";
@@ -8,7 +8,6 @@ import "react-toastify/dist/ReactToastify.css";
 const ResultsPage = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
-  // Removed sortType and setSortType states
   const [flights, setFlights] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -22,12 +21,6 @@ const ResultsPage = () => {
       setLoading(false);
     }
   }, [state]);
-
-  // Removed handleSort function
-
-  // Use flights directly without sorting
-  // const sortedFlights = flights;
-
   const formatTime = (dateString) => {
     return new Date(dateString).toLocaleString();
   };
@@ -75,8 +68,6 @@ const ResultsPage = () => {
         >
           ← Back to Search
         </button>
-
-        {/* Removed sorting dropdown */}
       </div>
 
       {error ? (
@@ -104,11 +95,11 @@ const ResultsPage = () => {
               >
                 <div className="flex-grow">
                   <div className="flex justify-between items-start mb-4">
-                    <h2 className="font-bold text-xl">
+                    <h2 className="font-bold md:text-xl">
                       {flight.validatingAirlineCodes[0]}
                     </h2>
                     <div className="text-right">
-                      <p className="text-2xl font-bold text-green-400">
+                      <p className="md:text-2xl  font-bold text-green-400">
                         {formatPrice(flight.price.total, flight.price.currency)}
                       </p>
                       <p className="text-sm text-gray-300">
@@ -120,7 +111,9 @@ const ResultsPage = () => {
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
                       <div>
-                        <p className="font-semibold">{firstSegment.departure.iataCode}</p>
+                        <p className="font-semibold">
+                          {firstSegment.departure.iataCode}
+                        </p>
                         <p className="text-sm text-gray-300">
                           {formatTime(firstSegment.departure.at)}
                         </p>
@@ -136,7 +129,9 @@ const ResultsPage = () => {
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="font-semibold">{lastSegment.arrival.iataCode}</p>
+                        <p className="font-semibold">
+                          {lastSegment.arrival.iataCode}
+                        </p>
                         <p className="text-sm text-gray-300">
                           {formatTime(lastSegment.arrival.at)}
                         </p>
@@ -157,7 +152,11 @@ const ResultsPage = () => {
                         Flight: {firstSegment.carrierCode} {firstSegment.number}
                       </p>
                       <p className="text-sm text-gray-300">
-                        Cabin: {flight.travelerPricings[0].fareDetailsBySegment[0].cabin}
+                        Cabin:{" "}
+                        {
+                          flight.travelerPricings[0].fareDetailsBySegment[0]
+                            .cabin
+                        }
                       </p>
                     </div>
                   </div>
@@ -165,7 +164,7 @@ const ResultsPage = () => {
 
                 <button
                   onClick={handleSelectFlight}
-                  className="w-full mt-4 bg-[#498AD9] text-white py-2 rounded font-semibold hover:bg-[#3a7bc8] transition-colors cursor-pointer"
+                  className="w-full mt-4 bg-[#498AD9] text-white py-2 rounded hover:bg-[#3a7bc8] transition-colors cursor-pointer"
                 >
                   Select Flight
                 </button>
@@ -175,15 +174,9 @@ const ResultsPage = () => {
         </div>
       ) : (
         <div className="text-center">
-          <p className="text-white font-bold text-lg mb-4">
+          <p className="text-red-500 font-bold text-lg mb-4">
             No flights found for your search criteria.
           </p>
-          <button
-            onClick={() => navigate("/")}
-            className="bg-[#498AD9] text-white px-6 py-2 rounded-full font-semibold cursor-pointer"
-          >
-            Search Again
-          </button>
         </div>
       )}
     </div>
