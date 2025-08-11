@@ -1,7 +1,7 @@
 // src/pages/ResultsPage.jsx
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import bgImg from '../../assets/31202.jpg'
+import bgImg from "../../assets/31202.jpg";
 
 const ResultsPage = () => {
   const { state } = useLocation();
@@ -18,14 +18,23 @@ const ResultsPage = () => {
       return parseFloat(a.price.total) - parseFloat(b.price.total);
     }
     if (sortType === "departure") {
-      return new Date(a.itineraries[0].segments[0].departure.at) - new Date(b.itineraries[0].segments[0].departure.at);
+      return (
+        new Date(a.itineraries[0].segments[0].departure.at) -
+        new Date(b.itineraries[0].segments[0].departure.at)
+      );
     }
     return 0;
   });
 
   return (
-    <div style={{backgroundImage: `url(${bgImg})`, backgroundPosition: 'center', backgroundSize: 'cover'}} className="p-6 min-h-screen">
-
+    <div
+      style={{
+        backgroundImage: `url(${bgImg})`,
+        backgroundPosition: "center",
+        backgroundSize: "cover",
+      }}
+      className="p-6 min-h-screen"
+    >
       <div className="flex justify-between items-center rounded-full mb-6">
         <button
           onClick={() => navigate("/")}
@@ -46,18 +55,21 @@ const ResultsPage = () => {
         </div>
       </div>
 
-    
       {sortedFlights.length ? (
-        <div className="grid gap-4 md:grid-cols-4 grid-cols-1">
+        <div className="grid gap-4 md:grid-cols-3 grid-cols-1">
           {sortedFlights.map((flight, idx) => {
             const offer = flight.itineraries[0].segments[0];
             return (
-              <div key={idx} className="bg-[#032B44] text-white opacity-75 p-4 rounded shadow">
+              <div
+                key={idx}
+                className="bg-[#032B44] text-white opacity-75 p-4 rounded shadow"
+              >
                 <h2 className="font-semibold text-lg">
                   Airline: {offer.carrierCode}
                 </h2>
                 <p>
-                  From: {offer.departure.iataCode} - To: {offer.arrival.iataCode}
+                  From: {offer.departure.iataCode} - To:{" "}
+                  {offer.arrival.iataCode}
                 </p>
                 <p>Departure: {offer.departure.at}</p>
                 <p>Arrival: {offer.arrival.at}</p>
@@ -69,7 +81,9 @@ const ResultsPage = () => {
           })}
         </div>
       ) : (
-        <p className="text-center text-red-600 font-bold">Please Search again...</p>
+        <p className="text-center text-red-600 font-bold">
+          Please Search again...
+        </p>
       )}
     </div>
   );
