@@ -1,6 +1,7 @@
 // src/pages/ResultsPage.jsx
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import bgImg from '../../assets/31202.jpg'
 
 const ResultsPage = () => {
   const { state } = useLocation();
@@ -23,20 +24,20 @@ const ResultsPage = () => {
   });
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-6">
+    <div style={{backgroundImage: `url(${bgImg})`, backgroundPosition: 'center', backgroundSize: 'cover'}} className="p-6 min-h-screen">
+
+      <div className="flex justify-between items-center rounded-full mb-6">
         <button
           onClick={() => navigate("/")}
-          className="bg-blue-500 text-white px-4 py-2 rounded"
+          className="bg-[#498AD9] text-white px-4 rounded-full font-semibold py-2"
         >
           ← Back to Search
         </button>
-        <div className="flex gap-3">
+        <div className="flex bg-[#498AD9] gap-3 rounded-full">
           <select
             value={sortType}
             onChange={(e) => handleSort(e.target.value)}
-            className="px-3 py-2 border rounded"
+            className="px-3 py-2"
           >
             <option value="">Sort By</option>
             <option value="price">Lowest Price</option>
@@ -51,7 +52,7 @@ const ResultsPage = () => {
           {sortedFlights.map((flight, idx) => {
             const offer = flight.itineraries[0].segments[0];
             return (
-              <div key={idx} className="bg-white p-4 rounded shadow">
+              <div key={idx} className="bg-[#032B44] text-white opacity-75 p-4 rounded shadow">
                 <h2 className="font-semibold text-lg">
                   Airline: {offer.carrierCode}
                 </h2>
@@ -68,7 +69,7 @@ const ResultsPage = () => {
           })}
         </div>
       ) : (
-        <p className="text-center text-gray-600">No flights found.</p>
+        <p className="text-center text-red-600 font-bold">Please Search again...</p>
       )}
     </div>
   );

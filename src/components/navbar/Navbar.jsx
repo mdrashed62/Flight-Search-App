@@ -6,8 +6,8 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <nav className="bg-white shadow-md sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+    <nav className="bg-white w-full shadow-md sticky top-0 z-50">
+      <div className="w-full mx-auto px-4 py-3 flex items-center justify-between">
         <Link to="/">
           <button className="text-xl font-bold text-[#498AD9]">
             ✈️ FlightFinder

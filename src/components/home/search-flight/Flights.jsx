@@ -4,7 +4,6 @@ import { getAccessToken } from "../../../utils/getToken";
 import { useNavigate } from "react-router";
 
 const Flights = () => {
-
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -49,12 +48,9 @@ const Flights = () => {
       if (data.data) {
         navigate("/results", { state: { flights: data.data } });
       }
-
-  
     } catch (error) {
       console.error("Error fetching flights:", error);
-    }
-    finally {
+    } finally {
       setLoading(false);
     }
   };
@@ -89,8 +85,6 @@ const Flights = () => {
       <h1 className="text-3xl font-bold">
         Millions of cheap flights. One simple search.
       </h1>
-
-  
 
       <form
         onSubmit={handleSubmit}
@@ -132,8 +126,6 @@ const Flights = () => {
             required
           />
         </div>
-
-       
 
         <div className="flex-1 p-4 border-r bg-white">
           <label className="text-gray-500 text-sm font-bold">Travellers</label>
