@@ -4,8 +4,7 @@
 This is a simple and responsive flight search web application built with **React.js** and **Tailwind CSS**.  
 It integrates with the **Amadeus Flight Offers API** to fetch real-time flight data based on user input.
 
----
-
+--
 ## Features
 
 - Search flights by origin, destination, departure date, and number of passengers.
