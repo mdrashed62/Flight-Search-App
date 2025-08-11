@@ -15,6 +15,66 @@ const Flights = () => {
     passengers: 1,
   });
 
+  // Autocomplete state
+  const [originQuery, setOriginQuery] = useState("");
+  const [originOptions, setOriginOptions] = useState([]);
+  const [destinationQuery, setDestinationQuery] = useState("");
+  const [destinationOptions, setDestinationOptions] = useState([]);
+  const [originLoading, setOriginLoading] = useState(false);
+  const [destinationLoading, setDestinationLoading] = useState(false);
+
+  // Fetch city/airport suggestions from Amadeus
+  const fetchLocations = async (query, setter, loadingSetter) => {
+    if (!query || query.length < 2) {
+      setter([]);
+      return;
+    }
+    loadingSetter(true);
+    try {
+      const token = await getAccessToken();
+      // Use a better endpoint for city/airport search
+      const response = await fetch(
+        `https://test.api.amadeus.com/v1/reference-data/locations?subType=AIRPORT,CITY&keyword=${encodeURIComponent(query)}&page[limit]=10&view=FULL`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const data = await response.json();
+      
+      if (data.data && data.data.length > 0) {
+        // Filter and format the results better
+        const formattedResults = data.data.map(item => ({
+          id: item.id,
+          name: item.name,
+          iataCode: item.iataCode,
+          subType: item.subType,
+          address: item.address,
+          displayName: `${item.name}${item.address?.cityName ? `, ${item.address.cityName}` : ''} (${item.iataCode})`
+        }));
+        setter(formattedResults);
+      } else {
+        setter([]);
+      }
+    } catch (error) {
+      console.error('Error fetching locations:', error);
+      setter([]);
+    } finally {
+      loadingSetter(false);
+    }
+  };
+
+  // Handlers for autocomplete
+  const handleOriginInput = (e) => {
+    setOriginQuery(e.target.value);
+    fetchLocations(e.target.value, setOriginOptions, setOriginLoading);
+  };
+  const handleDestinationInput = (e) => {
+    setDestinationQuery(e.target.value);
+    fetchLocations(e.target.value, setDestinationOptions, setDestinationLoading);
+  };
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -22,7 +82,6 @@ const Flights = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
     try {
       const token = await getAccessToken();
       const query = new URLSearchParams({
@@ -33,7 +92,6 @@ const Flights = () => {
         currencyCode: "USD",
         max: 10,
       });
-
       const response = await fetch(
         `https://test.api.amadeus.com/v2/shopping/flight-offers?${query}`,
         {
@@ -42,14 +100,12 @@ const Flights = () => {
           },
         }
       );
-
       const data = await response.json();
-
       if (data.data) {
         navigate("/results", { state: { flights: data.data } });
       }
-    } catch (error) {
-      console.error("Error fetching flights:", error);
+    } catch {
+      // Error fetching flights
     } finally {
       setLoading(false);
     }
@@ -81,40 +137,79 @@ const Flights = () => {
           <FaCar /> Car
         </button>
       </div>
-
       <h1 className="text-3xl font-bold">
-        Millions of cheap flights. One simple search.
+        Discover Affordable Flights, Tailored for You.
       </h1>
-
       <form
         onSubmit={handleSubmit}
-        className="rounded-xl gap-1 overflow-hidden relative text-black flex md:flex-row flex-col md:mt-20"
+        className="rounded-xl gap-1 relative text-black flex md:flex-row flex-col md:mt-20"
       >
-        <div className="flex-1 border-r p-4 bg-white">
-          <label className="text-gray-500 text-sm font-bold">Origin</label>
+        <div className="flex-1 border-r p-4 bg-white relative">
+          <label className="text-gray-500 text-sm font-bold ">Origin</label>
           <input
             name="origin"
-            value={formData.origin}
-            onChange={handleChange}
+            value={originQuery}
+            onChange={handleOriginInput}
             type="text"
-            placeholder="IATA code (e.g., DAC)"
+            placeholder="City or Airport"
             className="w-full outline-none"
+            autoComplete="off"
             required
+            style={{ position: 'relative', zIndex: 60 }}
           />
+          {originLoading && <div className="absolute left-0 right-0 bg-white z-50 p-2 text-xs border-b">Loading...</div>}
+          {originOptions.length > 0 && (
+            <ul className="absolute left-0 right-0 bg-white z-50 border mt-1 max-h-60 overflow-y-auto shadow-lg rounded-b">
+              {originOptions.map((opt) => (
+                <li
+                  key={opt.id}
+                  className="p-2 hover:bg-blue-100 cursor-pointer flex flex-col"
+                  onClick={() => {
+                    setFormData({ ...formData, origin: opt.iataCode });
+                    setOriginQuery(opt.displayName);
+                    setOriginOptions([]);
+                  }}
+                >
+                  <span className="font-semibold">{opt.displayName}</span>
+                  <span className="text-xs text-gray-500">{opt.subType === 'CITY' ? 'City' : 'Airport'}</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
-        <div className="flex-1 border-r p-4 bg-white">
+        <div className="flex-1 border-r p-4 bg-white relative">
           <label className="text-gray-500 text-sm font-bold">Destination</label>
           <input
             name="destination"
-            value={formData.destination}
-            onChange={handleChange}
+            value={destinationQuery}
+            onChange={handleDestinationInput}
             type="text"
-            placeholder="IATA code (e.g., DXB)"
+            placeholder="City or Airport"
             className="w-full outline-none"
+            autoComplete="off"
             required
+            style={{ position: 'relative', zIndex: 60 }}
           />
+          {destinationLoading && <div className="absolute left-0 right-0 bg-white z-50 p-2 text-xs border-b">Loading...</div>}
+          {destinationOptions.length > 0 && (
+            <ul className="absolute left-0 right-0 bg-white z-50 border mt-1 max-h-60 overflow-y-auto shadow-lg rounded-b">
+              {destinationOptions.map((opt) => (
+                <li
+                  key={opt.id}
+                  className="p-2 hover:bg-blue-100 cursor-pointer flex flex-col"
+                  onClick={() => {
+                    setFormData({ ...formData, destination: opt.iataCode });
+                    setDestinationQuery(opt.displayName);
+                    setDestinationOptions([]);
+                  }}
+                >
+                  <span className="font-semibold">{opt.displayName}</span>
+                  <span className="text-xs text-gray-500">{opt.subType === 'CITY' ? 'City' : 'Airport'}</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
-
         <div className="flex-1 border-r p-4 bg-white">
           <label className="text-gray-500 text-sm font-bold">Date</label>
           <input
@@ -126,7 +221,6 @@ const Flights = () => {
             required
           />
         </div>
-
         <div className="flex-1 p-4 border-r bg-white">
           <label className="text-gray-500 text-sm font-bold">Travellers</label>
           <input
@@ -138,10 +232,9 @@ const Flights = () => {
             className="w-full outline-none"
           />
         </div>
-
         <button
           type="submit"
-          className="bg-[#498AD9] text-white px-6 font-semibold py-6"
+          className="bg-[#498AD9] text-white px-6 font-semibold py-6 cursor-pointer"
         >
           Search
         </button>
